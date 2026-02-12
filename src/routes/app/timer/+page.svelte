@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
-	import { goto } from '$app/navigation';
+	import { goto, beforeNavigate } from '$app/navigation';
 	import { page } from '$app/state';
 	import { timer, type TimerMode } from '$lib/stores/timer.svelte';
 	import { protocol } from '$lib/stores/protocol.svelte';
@@ -23,6 +23,10 @@
 	let taskInput = $state('');
 	let showTaskInput = $state(false);
 	let wakeLock: WakeLockSentinel | null = null;
+	let taskSwitchCount = $state(0);
+	let showNavConfirm = $state(false);
+	let pendingNavUrl = $state<string | null>(null);
+	let startDebounce = $state(false);
 
 	const modeColor = $derived(timer.modeColor);
 	const modeLabel = $derived(timer.modeLabel);
@@ -78,6 +82,30 @@
 		};
 	});
 
+	// Navigation guard: confirm before leaving during active timer
+	beforeNavigate(({ cancel, to }) => {
+		if ((timer.isRunning || timer.timerState === 'paused') && !showNavConfirm) {
+			cancel();
+			pendingNavUrl = to?.url.pathname ?? '/app';
+			showNavConfirm = true;
+		}
+	});
+
+	function confirmLeave() {
+		timer.pause();
+		releaseWakeLock();
+		showNavConfirm = false;
+		const url = pendingNavUrl ?? '/app';
+		pendingNavUrl = null;
+		timer.stop();
+		goto(url);
+	}
+
+	function cancelLeave() {
+		showNavConfirm = false;
+		pendingNavUrl = null;
+	}
+
 	function launchFromProtocol(item: { id: string; type: string; duration: number }) {
 		const mode = parseMode(item.type);
 		if (mode === 'pomodoro' && !taskInput) {
@@ -102,6 +130,11 @@
 		pomodoroNumber?: number;
 		pomodoroTotal?: number;
 	}) {
+		if (startDebounce) return;
+		startDebounce = true;
+		setTimeout(() => (startDebounce = false), 500);
+
+		taskSwitchCount = 0;
 		timer.start({
 			mode: config.mode,
 			durationMinutes: config.durationMinutes,
@@ -352,6 +385,29 @@
 			{/if}
 		</div>
 
+		<!-- Task Switch Counter (for pomodoros) -->
+		{#if timer.mode === 'pomodoro' && timer.isRunning}
+			<div class="px-4 pb-2 text-center">
+				<button
+					type="button"
+					class="inline-flex items-center gap-2 rounded-full bg-bg-tertiary/50 px-3 py-1.5 text-xs transition-all hover:bg-bg-tertiary active:scale-95"
+					onclick={() => {
+						taskSwitchCount += 1;
+						toast.warning(`Task switch #${taskSwitchCount}`);
+					}}
+				>
+					<span class="text-text-tertiary">Task switches:</span>
+					<span class="font-mono {taskSwitchCount > 2 ? 'text-danger' : 'text-text-primary'}"
+						>{taskSwitchCount}</span
+					>
+					<span class="text-text-tertiary">(target: &lt; 2)</span>
+					<span class="ml-1 rounded bg-danger/20 px-1.5 py-0.5 text-[10px] font-bold text-danger"
+						>+ Switch</span
+					>
+				</button>
+			</div>
+		{/if}
+
 		<!-- Water Counter (for breaks) -->
 		{#if timer.mode === 'break'}
 			<div class="px-4 pb-6 text-center">
@@ -367,5 +423,20 @@
 				</GlassCard>
 			</div>
 		{/if}
+	</div>
+{/if}
+
+<!-- Navigation Confirmation Dialog -->
+{#if showNavConfirm}
+	<div class="fixed inset-0 z-[60] flex items-center justify-center bg-black/80 px-4">
+		<GlassCard variant="elevated" padding="lg" class="w-full max-w-xs text-center">
+			<p class="mb-2 text-2xl">⏱️</p>
+			<h3 class="mb-2 text-lg font-bold text-text-primary">Timer is running</h3>
+			<p class="mb-6 text-sm text-text-secondary">Leave anyway? The timer will be stopped.</p>
+			<div class="flex justify-center gap-3">
+				<Button variant="secondary" onclick={cancelLeave}>Stay</Button>
+				<Button onclick={confirmLeave}>Leave</Button>
+			</div>
+		</GlassCard>
 	</div>
 {/if}

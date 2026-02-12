@@ -1,7 +1,7 @@
 <script lang="ts">
 	import type { Snippet } from 'svelte';
 	import { page } from '$app/state';
-	import { Home, Timer, Brain, BookOpen, BarChart3 } from 'lucide-svelte';
+	import { Home, Timer, Brain, Layers, BarChart3 } from 'lucide-svelte';
 
 	let { children }: { children: Snippet } = $props();
 
@@ -9,7 +9,7 @@
 		{ href: '/app', icon: Home, label: 'Dashboard' },
 		{ href: '/app/timer', icon: Timer, label: 'Timer' },
 		{ href: '/app/nback', icon: Brain, label: 'N-Back' },
-		{ href: '/app/review', icon: BookOpen, label: 'Review' },
+		{ href: '/app/cards', icon: Layers, label: 'Cards' },
 		{ href: '/app/progress', icon: BarChart3, label: 'Progress' }
 	];
 
