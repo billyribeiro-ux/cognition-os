@@ -106,6 +106,11 @@ class SRSStore {
 		saveCards(this.cards);
 	}
 
+	editCard(id: string, updates: { front?: string; back?: string; deck?: string }) {
+		this.cards = this.cards.map((c) => (c.id === id ? { ...c, ...updates } : c));
+		saveCards(this.cards);
+	}
+
 	deleteCard(id: string) {
 		this.cards = this.cards.filter((c) => c.id !== id);
 		saveCards(this.cards);

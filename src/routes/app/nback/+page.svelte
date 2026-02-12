@@ -142,10 +142,16 @@
 		<div class="mt-auto flex justify-center gap-4 pb-6">
 			<button
 				type="button"
-				class="focus-ring max-w-[160px] flex-1 rounded-[12px] py-4 text-center text-sm font-bold transition-all duration-150
-					{nback.userPressedPosition
-					? 'scale-95 bg-accent text-bg-primary'
-					: 'glass-card text-text-primary hover:bg-accent/10 active:scale-95'}"
+				class="focus-ring min-h-[80px] max-w-[160px] flex-1 rounded-[12px] py-4 text-center text-sm font-bold transition-all duration-150
+					{nback.positionFeedback === 'correct'
+					? 'scale-95 bg-success text-bg-primary'
+					: nback.positionFeedback === 'incorrect'
+						? 'animate-shake scale-95 bg-danger text-bg-primary'
+						: nback.positionFeedback === 'miss'
+							? 'bg-warning/30 text-warning'
+							: nback.userPressedPosition
+								? 'scale-95 bg-accent text-bg-primary'
+								: 'glass-card text-text-primary hover:bg-accent/10 active:scale-95'}"
 				onclick={() => nback.pressPosition()}
 			>
 				<span class="mb-1 block text-2xl">📍</span>
@@ -154,10 +160,16 @@
 
 			<button
 				type="button"
-				class="focus-ring max-w-[160px] flex-1 rounded-[12px] py-4 text-center text-sm font-bold transition-all duration-150
-					{nback.userPressedAudio
-					? 'scale-95 bg-accent text-bg-primary'
-					: 'glass-card text-text-primary hover:bg-accent/10 active:scale-95'}"
+				class="focus-ring min-h-[80px] max-w-[160px] flex-1 rounded-[12px] py-4 text-center text-sm font-bold transition-all duration-150
+					{nback.audioFeedback === 'correct'
+					? 'scale-95 bg-success text-bg-primary'
+					: nback.audioFeedback === 'incorrect'
+						? 'animate-shake scale-95 bg-danger text-bg-primary'
+						: nback.audioFeedback === 'miss'
+							? 'bg-warning/30 text-warning'
+							: nback.userPressedAudio
+								? 'scale-95 bg-accent text-bg-primary'
+								: 'glass-card text-text-primary hover:bg-accent/10 active:scale-95'}"
 				onclick={() => nback.pressAudio()}
 			>
 				<span class="mb-1 block text-2xl">🔊</span>
@@ -216,12 +228,21 @@
 						{nback.audioCorrect}✓ / {nback.audioIncorrect}✗
 					</span>
 				</div>
-				{#if acc.overallAccuracy >= 80}
-					<Badge variant="success" label="LEVEL UP! → {nback.nLevel}-Back" />
-				{:else if acc.overallAccuracy < 50}
-					<Badge variant="danger" label="LEVEL DOWN → {nback.nLevel}-Back" />
+				{#if nback.levelChangeMessage}
+					<Badge
+						variant={nback.levelChangeMessage.includes('up') ? 'success' : 'warning'}
+						label={nback.levelChangeMessage}
+					/>
 				{:else}
-					<Badge variant="info" label="LEVEL MAINTAINED: {nback.nLevel}-Back" />
+					<div class="space-y-1">
+						<Badge variant="info" label="Level: {nback.nLevel}-Back" />
+						{#if nback.recentAccuracies.length > 0}
+							<p class="text-[10px] text-text-tertiary">
+								Recent: {nback.recentAccuracies.map((a) => `${a}%`).join(', ')}
+								({nback.recentAccuracies.length}/3 sessions for level change)
+							</p>
+						{/if}
+					</div>
 				{/if}
 			</GlassCard>
 

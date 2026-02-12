@@ -12,7 +12,8 @@
 	let showAddCard = $state(false);
 	let newFront = $state('');
 	let newBack = $state('');
-	let newDeck = $state('cognitive-science');
+	let newDeck = $state('neuroscience-fundamentals');
+	let cardAnimating = $state(false);
 
 	const ratingButtons: { rating: SRSRating; label: string; color: string; key: string }[] = [
 		{ rating: 'again', label: 'Again', color: 'text-danger', key: '1' },
@@ -29,16 +30,25 @@
 		srs.resetSession();
 	});
 
+	function handleRate(rating: SRSRating) {
+		if (cardAnimating) return;
+		cardAnimating = true;
+		setTimeout(() => {
+			srs.rate(rating);
+			cardAnimating = false;
+		}, 300);
+	}
+
 	function handleKeydown(e: KeyboardEvent) {
 		if (showAddCard) return;
 		if (e.key === ' ' && !srs.showAnswer && srs.currentCard) {
 			e.preventDefault();
 			srs.reveal();
 		} else if (srs.showAnswer) {
-			if (e.key === '1') srs.rate('again');
-			else if (e.key === '2') srs.rate('hard');
-			else if (e.key === '3') srs.rate('good');
-			else if (e.key === '4') srs.rate('easy');
+			if (e.key === '1') handleRate('again');
+			else if (e.key === '2') handleRate('hard');
+			else if (e.key === '3') handleRate('good');
+			else if (e.key === '4') handleRate('easy');
 		}
 	}
 
@@ -138,49 +148,62 @@
 			</div>
 		</div>
 
-		<!-- Card -->
+		<!-- Card with 3D flip -->
 		<div class="flex flex-1 flex-col items-center justify-center">
-			<GlassCard variant="elevated" padding="lg" class="w-full max-w-md text-center">
-				<!-- Deck badge -->
-				<div class="mb-4">
-					<Badge variant="info" label={srs.currentCard.deck.replace(/-/g, ' ')} size="sm" />
+			<div
+				class="perspective-1000 w-full max-w-md {cardAnimating
+					? 'animate-slide-out-left'
+					: 'animate-slide-in-right'}"
+			>
+				<div class="flip-card-inner {srs.showAnswer ? 'flipped' : ''}">
+					<!-- Front face -->
+					<div class="flip-card-front">
+						<GlassCard variant="elevated" padding="lg" class="w-full text-center">
+							<div class="mb-4">
+								<Badge variant="info" label={srs.currentCard.deck.replace(/-/g, ' ')} size="sm" />
+							</div>
+							<h3 class="mb-6 min-h-[80px] text-lg leading-relaxed font-medium text-text-primary">
+								{srs.currentCard.front}
+							</h3>
+							<Button fullWidth onclick={() => srs.reveal()}>SHOW ANSWER (Space)</Button>
+						</GlassCard>
+					</div>
+
+					<!-- Back face -->
+					<div class="flip-card-back">
+						<GlassCard variant="elevated" padding="lg" class="w-full text-center">
+							<div class="mb-4">
+								<Badge variant="info" label={srs.currentCard.deck.replace(/-/g, ' ')} size="sm" />
+							</div>
+							<h3 class="mb-4 text-lg leading-relaxed font-medium text-text-primary">
+								{srs.currentCard.front}
+							</h3>
+							<div class="mb-6 border-t border-white/8 pt-4">
+								<p class="text-base leading-relaxed text-text-secondary">
+									{srs.currentCard.back}
+								</p>
+							</div>
+							<div class="grid grid-cols-4 gap-2">
+								{#each ratingButtons as btn (btn.rating)}
+									<button
+										type="button"
+										class="glass-card focus-ring rounded-[8px] px-2 py-3 text-center transition-all duration-150 hover:bg-white/5 active:scale-95"
+										onclick={() => handleRate(btn.rating)}
+									>
+										<span class="block text-xs font-bold {btn.color}">{btn.label}</span>
+										{#if nextDates}
+											<span class="mt-1 block font-mono text-[10px] text-text-tertiary">
+												{nextDates[btn.rating]}
+											</span>
+										{/if}
+										<span class="mt-0.5 block text-[10px] text-text-tertiary">({btn.key})</span>
+									</button>
+								{/each}
+							</div>
+						</GlassCard>
+					</div>
 				</div>
-
-				<!-- Front -->
-				<h3 class="mb-6 text-lg leading-relaxed font-medium text-text-primary">
-					{srs.currentCard.front}
-				</h3>
-
-				{#if !srs.showAnswer}
-					<Button fullWidth onclick={() => srs.reveal()}>SHOW ANSWER (Space)</Button>
-				{:else}
-					<!-- Answer -->
-					<div class="mb-6 border-t border-white/8 pt-4">
-						<p class="text-base leading-relaxed text-text-secondary">
-							{srs.currentCard.back}
-						</p>
-					</div>
-
-					<!-- Rating buttons -->
-					<div class="grid grid-cols-4 gap-2">
-						{#each ratingButtons as btn (btn.rating)}
-							<button
-								type="button"
-								class="glass-card focus-ring rounded-[8px] px-2 py-3 text-center transition-all duration-150 hover:bg-white/5 active:scale-95"
-								onclick={() => srs.rate(btn.rating)}
-							>
-								<span class="block text-xs font-bold {btn.color}">{btn.label}</span>
-								{#if nextDates}
-									<span class="mt-1 block font-mono text-[10px] text-text-tertiary">
-										{nextDates[btn.rating]}
-									</span>
-								{/if}
-								<span class="mt-0.5 block text-[10px] text-text-tertiary">({btn.key})</span>
-							</button>
-						{/each}
-					</div>
-				{/if}
-			</GlassCard>
+			</div>
 		</div>
 	{/if}
 </div>
