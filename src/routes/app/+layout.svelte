@@ -64,7 +64,11 @@
 	<!-- Main content -->
 	<div class="flex flex-1 flex-col overflow-hidden">
 		<div class="flex-1 overflow-y-auto pb-20 lg:pb-4">
-			{@render children()}
+			{#key page.url.pathname}
+				<div class="page-transition">
+					{@render children()}
+				</div>
+			{/key}
 		</div>
 	</div>
 
@@ -95,5 +99,20 @@
 <style>
 	.safe-area-bottom {
 		padding-bottom: env(safe-area-inset-bottom, 0px);
+	}
+
+	.page-transition {
+		animation: page-fade-in 200ms ease-out;
+	}
+
+	@keyframes page-fade-in {
+		from {
+			opacity: 0;
+			transform: translateY(4px);
+		}
+		to {
+			opacity: 1;
+			transform: translateY(0);
+		}
 	}
 </style>
