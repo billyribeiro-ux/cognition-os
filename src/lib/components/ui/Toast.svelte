@@ -25,13 +25,14 @@
 		aria-live="polite"
 	>
 		{#each toast.items as item (item.id)}
+			{@const Icon = iconMap[item.type]}
 			<div
 				class="glass-card-elevated flex items-center gap-3 px-4 py-3"
 				in:fly={{ y: 20, duration: 200 }}
 				out:fade={{ duration: 150 }}
 				role="alert"
 			>
-				<svelte:component this={iconMap[item.type]} size={18} class={colorMap[item.type]} />
+				<Icon size={18} class={colorMap[item.type]} />
 				<span class="flex-1 text-sm text-text-primary">{item.message}</span>
 				<button
 					type="button"

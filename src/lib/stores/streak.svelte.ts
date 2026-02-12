@@ -100,6 +100,25 @@ class StreakStore {
 		this.data = data;
 		saveStreak(this.data);
 	}
+
+	/**
+	 * Check if yesterday was completed. If the last completed date is
+	 * more than 1 day ago, break the streak. Called on app mount.
+	 */
+	checkDaily() {
+		const todayStr = new Date().toISOString().split('T')[0];
+		const last = this.data.lastCompletedDate;
+		if (!last) return;
+		if (last === todayStr) return; // already checked today
+
+		const lastDate = new Date(last + 'T00:00:00');
+		const todayDate = new Date(todayStr + 'T00:00:00');
+		const diffDays = Math.round((todayDate.getTime() - lastDate.getTime()) / (1000 * 60 * 60 * 24));
+
+		if (diffDays > 1) {
+			this.breakStreak();
+		}
+	}
 }
 
 export const streak = new StreakStore();

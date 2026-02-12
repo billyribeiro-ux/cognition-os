@@ -103,6 +103,10 @@
 	}
 </script>
 
+<svelte:head>
+	<title>Settings — Cognition OS</title>
+</svelte:head>
+
 <div class="flex flex-1 flex-col gap-4 overflow-y-auto px-4 py-4">
 	<div class="flex items-center justify-between">
 		<h1 class="text-xl font-bold text-text-primary">Settings</h1>

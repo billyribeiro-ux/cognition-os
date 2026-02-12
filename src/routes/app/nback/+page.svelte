@@ -28,6 +28,10 @@
 	}
 </script>
 
+<svelte:head>
+	<title>N-Back Training — Cognition OS</title>
+</svelte:head>
+
 <svelte:window onkeydown={handleKeydown} />
 
 <div class="flex flex-1 flex-col px-4 py-4">

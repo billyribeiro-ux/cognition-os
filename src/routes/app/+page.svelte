@@ -14,6 +14,7 @@
 	import Odometer from '$lib/components/ui/Odometer.svelte';
 
 	onMount(() => {
+		streak.checkDaily();
 		if (protocol.items.length === 0) {
 			const demoItems = getDemoProtocol();
 			protocol.setSchedule(demoItems);
@@ -64,6 +65,10 @@
 		}
 	}
 </script>
+
+<svelte:head>
+	<title>Dashboard — Cognition OS</title>
+</svelte:head>
 
 <div class="space-y-4 px-4 py-4">
 	<!-- Header with settings -->

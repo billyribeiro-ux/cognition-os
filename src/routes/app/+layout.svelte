@@ -1,9 +1,18 @@
 <script lang="ts">
+	import { onMount } from 'svelte';
 	import type { Snippet } from 'svelte';
 	import { page } from '$app/state';
+	import { goto } from '$app/navigation';
 	import { Home, Timer, Brain, Layers, BarChart3, Settings } from 'lucide-svelte';
+	import { onboarding } from '$lib/stores/onboarding.svelte';
 
 	let { children }: { children: Snippet } = $props();
+
+	onMount(() => {
+		if (!onboarding.isComplete) {
+			goto('/onboarding');
+		}
+	});
 
 	const navItems = [
 		{ href: '/app', icon: Home, label: 'Dashboard' },

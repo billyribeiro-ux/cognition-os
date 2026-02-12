@@ -257,6 +257,10 @@
 	});
 </script>
 
+<svelte:head>
+	<title>Timer — Cognition OS</title>
+</svelte:head>
+
 <svelte:window
 	onkeydown={(e) => {
 		if (e.key === 'Escape' && timer.isRunning) {
@@ -350,93 +354,140 @@
 
 <!-- Timer Screen -->
 {#if !showTaskInput && !timer.isComplete}
-	<div class="flex min-h-dvh flex-col">
-		<!-- Status Bar -->
-		<div class="flex items-center justify-between px-4 pt-4 pb-2">
-			<span class="font-mono text-xs tracking-[0.2em] uppercase" style="color: {modeColor};">
-				{modeLabel}
-			</span>
-			{#if timer.startedAt}
-				<span class="font-mono text-xs text-text-tertiary">
-					Started {formatStartTime(timer.startedAt)}
-				</span>
-			{/if}
-		</div>
+	{#if timer.timerState === 'idle' && !timer.startedAt}
+		<!-- Mode Picker (when navigating to /app/timer directly) -->
+		<div class="flex flex-1 flex-col items-center justify-center gap-6 px-4 py-8 text-center">
+			<div class="space-y-2">
+				<p class="font-mono text-xs tracking-[0.3em] text-accent uppercase">Timer</p>
+				<h1 class="text-2xl font-bold text-text-primary">Start a Session</h1>
+				<p class="text-sm text-text-secondary">
+					Choose a session type or start from your protocol.
+				</p>
+			</div>
 
-		<!-- Timer Ring -->
-		<div class="flex flex-1 items-center justify-center px-4 py-8">
-			<ProgressRing
-				progress={timer.progress}
-				size={280}
-				strokeWidth={10}
-				color={modeColor}
-				showLabel={true}
-				label={timer.displayTime}
-			/>
-		</div>
-
-		<!-- Task Description & Prompt -->
-		<div class="mb-6 space-y-2 px-6 text-center">
-			{#if taskInput && timer.mode === 'pomodoro'}
-				<p class="text-lg font-medium text-text-primary">{taskInput}</p>
-			{/if}
-			{#if modePrompt}
-				<p class="text-sm text-text-secondary">{modePrompt}</p>
-			{/if}
-		</div>
-
-		<!-- Controls -->
-		<div class="flex items-center justify-center gap-4 px-6 pb-8">
-			{#if timer.isRunning}
-				<Button variant="secondary" onclick={handlePause}>PAUSE</Button>
-				<Button variant="ghost" onclick={handleSkip}>SKIP</Button>
-			{:else if timer.timerState === 'paused'}
-				<Button onclick={handleResume}>RESUME</Button>
-				<Button variant="danger" onclick={handleStop}>STOP</Button>
-			{:else}
-				<Button variant="secondary" onclick={() => goto('/app')}>BACK</Button>
-			{/if}
-		</div>
-
-		<!-- Task Switch Counter (for pomodoros) -->
-		{#if timer.mode === 'pomodoro' && timer.isRunning}
-			<div class="px-4 pb-2 text-center">
-				<button
-					type="button"
-					class="inline-flex items-center gap-2 rounded-full bg-bg-tertiary/50 px-3 py-1.5 text-xs transition-all hover:bg-bg-tertiary active:scale-95"
+			<div class="grid w-full max-w-xs gap-3">
+				<Button
+					fullWidth
 					onclick={() => {
-						taskSwitchCount += 1;
-						toast.warning(`Task switch #${taskSwitchCount}`);
+						showTaskInput = true;
 					}}
 				>
-					<span class="text-text-tertiary">Task switches:</span>
-					<span class="font-mono {taskSwitchCount > 2 ? 'text-danger' : 'text-text-primary'}"
-						>{taskSwitchCount}</span
-					>
-					<span class="text-text-tertiary">(target: &lt; 2)</span>
-					<span class="ml-1 rounded bg-danger/20 px-1.5 py-0.5 text-[10px] font-bold text-danger"
-						>+ Switch</span
-					>
-				</button>
+					🎯 Pomodoro (25 min)
+				</Button>
+				<Button
+					fullWidth
+					variant="secondary"
+					onclick={() => launchDirect({ mode: 'meditation', durationMinutes: 10 })}
+				>
+					🧘 Meditation (10 min)
+				</Button>
+				<Button
+					fullWidth
+					variant="secondary"
+					onclick={() => launchDirect({ mode: 'exercise', durationMinutes: 30 })}
+				>
+					🏃 Exercise (30 min)
+				</Button>
+				<Button
+					fullWidth
+					variant="secondary"
+					onclick={() => launchDirect({ mode: 'cold', durationMinutes: 3 })}
+				>
+					🧊 Cold Exposure (3 min)
+				</Button>
 			</div>
-		{/if}
 
-		<!-- Water Counter (for breaks) -->
-		{#if timer.mode === 'break'}
-			<div class="px-4 pb-6 text-center">
-				<GlassCard padding="sm" class="inline-flex items-center gap-3">
-					<span class="text-2xl">💧</span>
-					<div class="text-left">
-						<p class="text-sm text-text-secondary">Hydration</p>
-						<p class="text-xs text-text-tertiary">
-							{protocol.waterOz} / {DAILY_WATER_TARGET_OZ} oz today
-						</p>
-					</div>
-					<Button size="sm" variant="secondary" onclick={() => protocol.addWater(8)}>+8oz</Button>
-				</GlassCard>
+			<Button variant="ghost" size="sm" onclick={() => goto('/app')}>Back to Dashboard</Button>
+		</div>
+	{:else}
+		<div class="flex min-h-dvh flex-col">
+			<!-- Status Bar -->
+			<div class="flex items-center justify-between px-4 pt-4 pb-2">
+				<span class="font-mono text-xs tracking-[0.2em] uppercase" style="color: {modeColor};">
+					{modeLabel}
+				</span>
+				{#if timer.startedAt}
+					<span class="font-mono text-xs text-text-tertiary">
+						Started {formatStartTime(timer.startedAt)}
+					</span>
+				{/if}
 			</div>
-		{/if}
-	</div>
+
+			<!-- Timer Ring -->
+			<div class="flex flex-1 items-center justify-center px-4 py-8">
+				<ProgressRing
+					progress={timer.progress}
+					size={280}
+					strokeWidth={10}
+					color={modeColor}
+					showLabel={true}
+					label={timer.displayTime}
+				/>
+			</div>
+
+			<!-- Task Description & Prompt -->
+			<div class="mb-6 space-y-2 px-6 text-center">
+				{#if taskInput && timer.mode === 'pomodoro'}
+					<p class="text-lg font-medium text-text-primary">{taskInput}</p>
+				{/if}
+				{#if modePrompt}
+					<p class="text-sm text-text-secondary">{modePrompt}</p>
+				{/if}
+			</div>
+
+			<!-- Controls -->
+			<div class="flex items-center justify-center gap-4 px-6 pb-8">
+				{#if timer.isRunning}
+					<Button variant="secondary" onclick={handlePause}>PAUSE</Button>
+					<Button variant="ghost" onclick={handleSkip}>SKIP</Button>
+				{:else if timer.timerState === 'paused'}
+					<Button onclick={handleResume}>RESUME</Button>
+					<Button variant="danger" onclick={handleStop}>STOP</Button>
+				{:else}
+					<Button variant="secondary" onclick={() => goto('/app')}>BACK</Button>
+				{/if}
+			</div>
+
+			<!-- Task Switch Counter (for pomodoros) -->
+			{#if timer.mode === 'pomodoro' && timer.isRunning}
+				<div class="px-4 pb-2 text-center">
+					<button
+						type="button"
+						class="inline-flex items-center gap-2 rounded-full bg-bg-tertiary/50 px-3 py-1.5 text-xs transition-all hover:bg-bg-tertiary active:scale-95"
+						onclick={() => {
+							taskSwitchCount += 1;
+							toast.warning(`Task switch #${taskSwitchCount}`);
+						}}
+					>
+						<span class="text-text-tertiary">Task switches:</span>
+						<span class="font-mono {taskSwitchCount > 2 ? 'text-danger' : 'text-text-primary'}"
+							>{taskSwitchCount}</span
+						>
+						<span class="text-text-tertiary">(target: &lt; 2)</span>
+						<span class="ml-1 rounded bg-danger/20 px-1.5 py-0.5 text-[10px] font-bold text-danger"
+							>+ Switch</span
+						>
+					</button>
+				</div>
+			{/if}
+
+			<!-- Water Counter (for breaks) -->
+			{#if timer.mode === 'break'}
+				<div class="px-4 pb-6 text-center">
+					<GlassCard padding="sm" class="inline-flex items-center gap-3">
+						<span class="text-2xl">💧</span>
+						<div class="text-left">
+							<p class="text-sm text-text-secondary">Hydration</p>
+							<p class="text-xs text-text-tertiary">
+								{protocol.waterOz} / {DAILY_WATER_TARGET_OZ} oz today
+							</p>
+						</div>
+						<Button size="sm" variant="secondary" onclick={() => protocol.addWater(8)}>+8oz</Button>
+					</GlassCard>
+				</div>
+			{/if}
+		</div>
+	{/if}
 {/if}
 
 <!-- Navigation Confirmation Dialog -->

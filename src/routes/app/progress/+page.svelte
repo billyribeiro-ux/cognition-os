@@ -126,6 +126,10 @@
 	});
 </script>
 
+<svelte:head>
+	<title>Progress — Cognition OS</title>
+</svelte:head>
+
 <div class="flex flex-1 flex-col gap-4 overflow-y-auto px-4 py-4">
 	<h1 class="text-xl font-bold text-text-primary">Progress</h1>
 

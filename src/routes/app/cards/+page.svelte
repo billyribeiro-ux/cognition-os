@@ -100,6 +100,10 @@
 	}
 </script>
 
+<svelte:head>
+	<title>Cards — Cognition OS</title>
+</svelte:head>
+
 <div class="flex flex-1 flex-col px-4 py-4">
 	<!-- Header -->
 	<div class="mb-4 flex items-center justify-between">
