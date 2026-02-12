@@ -3,14 +3,51 @@
 	import { settings, type AppSettings } from '$lib/stores/settings.svelte';
 	import { streak } from '$lib/stores/streak.svelte';
 	import { onboarding } from '$lib/stores/onboarding.svelte';
+	import { protocol } from '$lib/stores/protocol.svelte';
+	import { srs } from '$lib/stores/srs.svelte';
 	import { toast } from '$lib/stores/toast.svelte';
 	import GlassCard from '$lib/components/ui/GlassCard.svelte';
 	import Button from '$lib/components/ui/Button.svelte';
+	import Badge from '$lib/components/ui/Badge.svelte';
 
 	let showResetConfirm = $state(false);
 	let showReOnboard = $state(false);
 
 	const APP_VERSION = '0.1.0';
+
+	const profession = $derived(
+		onboarding.state.profession
+			? onboarding.state.profession.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase())
+			: 'Not set'
+	);
+
+	function exportDataCSV() {
+		const rows: string[][] = [
+			['Section', 'Key', 'Value'],
+			['Streak', 'Current', String(streak.data.currentStreak)],
+			['Streak', 'Longest', String(streak.data.longestStreak)],
+			['Streak', 'Level', String(streak.data.currentLevel)],
+			['Streak', 'Day in Level', String(streak.data.dayInLevel)],
+			['Streak', 'Total Restarts', String(streak.data.totalRestarts)],
+			['Protocol', 'Items Today', String(protocol.items.length)],
+			['Protocol', 'Completed', String(protocol.completedCount)],
+			['Protocol', 'Completion %', String(protocol.completionPercent)],
+			['Protocol', 'Water (oz)', String(protocol.waterOz)],
+			['SRS', 'Total Cards', String(srs.totalCards)],
+			['SRS', 'Due Today', String(srs.dueCount)],
+			['Settings', 'Sound Effects', String(settings.data.soundEffects)],
+			['Settings', 'Haptic Feedback', String(settings.data.hapticFeedback)]
+		];
+		const csv = rows.map((r) => r.map((c) => `"${c}"`).join(',')).join('\n');
+		const blob = new Blob([csv], { type: 'text/csv' });
+		const url = URL.createObjectURL(blob);
+		const a = document.createElement('a');
+		a.href = url;
+		a.download = `cognition-os-export-${new Date().toISOString().split('T')[0]}.csv`;
+		a.click();
+		URL.revokeObjectURL(url);
+		toast.success('Data exported');
+	}
 
 	interface SettingToggle {
 		key: keyof AppSettings;
@@ -71,6 +108,34 @@
 		<h1 class="text-xl font-bold text-text-primary">Settings</h1>
 		<Button variant="ghost" size="sm" onclick={() => goto('/app')}>Done</Button>
 	</div>
+
+	<!-- Profile -->
+	<GlassCard padding="md">
+		<p class="mb-3 font-mono text-xs tracking-[0.2em] text-text-tertiary uppercase">Profile</p>
+		<div class="space-y-3">
+			<div class="flex items-center justify-between">
+				<div>
+					<p class="text-sm text-text-primary">Profession</p>
+					<p class="text-xs text-text-tertiary">{profession}</p>
+				</div>
+				<Badge variant="info" label="L{streak.data.currentLevel}" size="sm" />
+			</div>
+			{#if onboarding.state.wakeTime}
+				<div class="flex items-center justify-between">
+					<p class="text-sm text-text-primary">Wake Time</p>
+					<span class="font-mono text-sm text-text-secondary">{onboarding.state.wakeTime}</span>
+				</div>
+			{/if}
+			{#if onboarding.state.commitmentLevel}
+				<div class="flex items-center justify-between">
+					<p class="text-sm text-text-primary">Commitment</p>
+					<span class="font-mono text-sm text-text-secondary capitalize">
+						{onboarding.state.commitmentLevel}
+					</span>
+				</div>
+			{/if}
+		</div>
+	</GlassCard>
 
 	<!-- Notifications -->
 	<GlassCard padding="md">
@@ -163,6 +228,28 @@
 					Reset All Data
 				</Button>
 			</div>
+		</div>
+	</GlassCard>
+
+	<!-- Data -->
+	<GlassCard padding="md">
+		<p class="mb-3 font-mono text-xs tracking-[0.2em] text-text-tertiary uppercase">Data</p>
+		<div class="space-y-3">
+			<Button variant="secondary" size="sm" fullWidth onclick={exportDataCSV}>
+				Export Data (CSV)
+			</Button>
+		</div>
+	</GlassCard>
+
+	<!-- Integrations -->
+	<GlassCard padding="md">
+		<p class="mb-3 font-mono text-xs tracking-[0.2em] text-text-tertiary uppercase">Integrations</p>
+		<div class="flex items-center justify-between">
+			<div>
+				<p class="text-sm text-text-primary">Apple Health</p>
+				<p class="text-xs text-text-tertiary">Sync exercise and sleep data</p>
+			</div>
+			<Badge variant="default" label="Coming Soon" size="sm" />
 		</div>
 	</GlassCard>
 

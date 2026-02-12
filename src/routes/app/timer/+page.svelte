@@ -208,6 +208,11 @@
 		}
 	}
 
+	function announceToSR(msg: string) {
+		const fn = (window as unknown as Record<string, unknown>).__announceToSR;
+		if (typeof fn === 'function') (fn as (m: string) => void)(msg);
+	}
+
 	function handleCompletionAction() {
 		playCompletionChime();
 		vibrate([100, 50, 100]);
@@ -216,24 +221,32 @@
 			protocol.completeItem(timer.protocolItemId);
 		}
 
+		let announcement = 'Session complete.';
 		if (timer.mode === 'pomodoro') {
 			protocol.addWater(8);
 			if (timer.pomodoroNumber >= timer.pomodoroTotal) {
-				toast.success('All pomodoros complete!');
+				announcement = 'All pomodoros complete!';
+				toast.success(announcement);
 			} else {
-				toast.success(`Pomodoro ${timer.pomodoroNumber} complete!`);
+				announcement = `Pomodoro ${timer.pomodoroNumber} complete!`;
+				toast.success(announcement);
 			}
 		} else if (timer.mode === 'break') {
-			toast.success('Break complete!');
+			announcement = 'Break complete!';
+			toast.success(announcement);
 		} else if (timer.mode === 'meditation') {
-			toast.success('Meditation complete!');
+			announcement = 'Meditation complete!';
+			toast.success(announcement);
 		} else if (timer.mode === 'cold') {
-			toast.success('Cold exposure complete!');
+			announcement = 'Cold exposure complete!';
+			toast.success(announcement);
 		} else if (timer.mode === 'exercise') {
-			toast.success('Exercise complete! BDNF is flowing.');
+			announcement = 'Exercise complete! BDNF is flowing.';
+			toast.success(announcement);
 		} else {
-			toast.success('Session complete!');
+			toast.success(announcement);
 		}
+		announceToSR(announcement);
 	}
 
 	// Auto-trigger completion action when timer finishes
