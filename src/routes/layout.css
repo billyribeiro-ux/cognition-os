@@ -266,3 +266,47 @@ body {
 .animate-slide-in-right {
 	animation: slide-in-right 0.3s ease-out;
 }
+
+/* ─── Reduced Motion ─── */
+
+@media (prefers-reduced-motion: reduce) {
+	*,
+	*::before,
+	*::after {
+		animation-duration: 0.01ms !important;
+		animation-iteration-count: 1 !important;
+		transition-duration: 0.01ms !important;
+		scroll-behavior: auto !important;
+	}
+}
+
+/* ─── Skeleton Loading ─── */
+
+@keyframes skeleton-pulse {
+	0% {
+		opacity: 0.06;
+	}
+	50% {
+		opacity: 0.12;
+	}
+	100% {
+		opacity: 0.06;
+	}
+}
+
+.skeleton {
+	background: rgba(255, 255, 255, 0.06);
+	border-radius: var(--radius-sm);
+	animation: skeleton-pulse 1.5s ease-in-out infinite;
+}
+
+/* ─── Scrollbar None ─── */
+
+.scrollbar-none {
+	-ms-overflow-style: none;
+	scrollbar-width: none;
+}
+
+.scrollbar-none::-webkit-scrollbar {
+	display: none;
+}

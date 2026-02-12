@@ -134,9 +134,14 @@
 		<div class="mb-4">
 			<div class="mb-1 flex items-center justify-between">
 				<span class="font-mono text-xs text-accent">REVIEW</span>
-				<span class="font-mono text-xs text-text-tertiary">
-					{srs.sessionReviewed} done · {srs.dueCount} remaining
-				</span>
+				<div class="flex items-center gap-3">
+					<span class="hidden font-mono text-[10px] text-text-tertiary md:inline">
+						Space = flip · 1-4 = rate
+					</span>
+					<span class="font-mono text-xs text-text-tertiary">
+						{srs.sessionReviewed} done · {srs.dueCount} remaining
+					</span>
+				</div>
 			</div>
 			<div class="h-1 overflow-hidden rounded-full bg-bg-tertiary">
 				<div

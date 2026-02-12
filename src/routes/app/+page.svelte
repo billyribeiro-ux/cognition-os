@@ -11,6 +11,7 @@
 	import ProgressRing from '$lib/components/ui/ProgressRing.svelte';
 	import Badge from '$lib/components/ui/Badge.svelte';
 	import Button from '$lib/components/ui/Button.svelte';
+	import Odometer from '$lib/components/ui/Odometer.svelte';
 
 	onMount(() => {
 		if (protocol.items.length === 0) {
@@ -18,6 +19,7 @@
 			protocol.setSchedule(demoItems);
 			streak.setData(getDemoStreak());
 		}
+		protocol.autoMissPastItems();
 	});
 
 	const levelColor = $derived(LEVEL_COLORS[streak.data.currentLevel] ?? LEVEL_COLORS[1]);
@@ -113,7 +115,7 @@
 		</div>
 
 		<p class="text-sm text-text-secondary">
-			Streak: {streak.data.currentStreak} days {streak.fireEmojis}
+			Streak: <Odometer value={streak.data.currentStreak} class="font-mono text-warning" /> days {streak.fireEmojis}
 		</p>
 	</GlassCard>
 
@@ -196,7 +198,7 @@
 		</GlassCard>
 
 		<GlassCard padding="sm" class="flex min-w-[100px] shrink-0 flex-col items-center gap-1">
-			<span class="font-mono text-2xl text-warning">{streak.data.currentStreak}</span>
+			<Odometer value={streak.data.currentStreak} class="font-mono text-2xl text-warning" />
 			<span class="text-xs text-text-tertiary">🔥 Streak</span>
 		</GlassCard>
 

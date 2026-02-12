@@ -1,0 +1,25 @@
+{
+	"name": "Cognition OS",
+	"short_name": "CognitionOS",
+	"description": "The Cognitive Performance Operating System — evidence-based protocols for peak mental performance.",
+	"start_url": "/app",
+	"display": "standalone",
+	"background_color": "#0A0A0F",
+	"theme_color": "#00D4FF",
+	"orientation": "portrait-primary",
+	"categories": ["health", "productivity", "education"],
+	"icons": [
+		{
+			"src": "/icon-192.png",
+			"sizes": "192x192",
+			"type": "image/png",
+			"purpose": "any maskable"
+		},
+		{
+			"src": "/icon-512.png",
+			"sizes": "512x512",
+			"type": "image/png",
+			"purpose": "any maskable"
+		}
+	]
+}
