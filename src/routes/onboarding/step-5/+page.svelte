@@ -1,6 +1,5 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
-	import { resolve } from '$app/paths';
 	import { onboarding } from '$lib/stores/onboarding.svelte';
 	import TimePicker from '$lib/components/ui/TimePicker.svelte';
 	import Button from '$lib/components/ui/Button.svelte';
@@ -17,7 +16,7 @@
 		const hours = Math.round(((endMin - startMin) / 60) * 10) / 10;
 		onboarding.updateField('workHours', Math.max(1, hours));
 		onboarding.setStep(6);
-		goto(resolve('/onboarding/step-6'));
+		goto('/onboarding/step-6');
 	}
 </script>
 

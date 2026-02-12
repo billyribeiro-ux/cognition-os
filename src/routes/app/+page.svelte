@@ -1,7 +1,6 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import { goto } from '$app/navigation';
-	import { resolve } from '$app/paths';
 	import { protocol } from '$lib/stores/protocol.svelte';
 	import { streak } from '$lib/stores/streak.svelte';
 	import { getDemoProtocol, getDemoStreak } from '$lib/utils/demo-data';
@@ -50,16 +49,16 @@
 			case 'exercise':
 			case 'cold_exposure':
 			case 'break':
-				goto(resolve(`/app/timer?type=${item.type}&itemId=${item.id}`));
+				goto(`/app/timer?type=${item.type}&itemId=${item.id}`);
 				break;
 			case 'nback':
-				goto(resolve('/app/nback'));
+				goto('/app/nback');
 				break;
 			case 'srs_review':
-				goto(resolve('/app/review'));
+				goto('/app/review');
 				break;
 			default:
-				goto(resolve(`/app/timer?type=generic&itemId=${item.id}`));
+				goto(`/app/timer?type=generic&itemId=${item.id}`);
 		}
 	}
 </script>

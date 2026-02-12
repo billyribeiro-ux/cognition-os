@@ -1,7 +1,6 @@
 <script lang="ts">
 	import type { Snippet } from 'svelte';
 	import { page } from '$app/state';
-	import { resolve } from '$app/paths';
 	import { Home, Timer, Brain, BookOpen, BarChart3 } from 'lucide-svelte';
 
 	let { children }: { children: Snippet } = $props();
@@ -31,7 +30,7 @@
 				{#each navItems as item (item.href)}
 					{@const isActive = page.url.pathname === item.href}
 					<a
-						href={resolve(item.href)}
+						href={item.href}
 						class="flex min-w-[56px] flex-col items-center gap-1 rounded-[8px] px-3 py-2 transition-colors duration-200
 							{isActive ? 'text-accent' : 'text-text-tertiary hover:text-text-secondary'}"
 						aria-current={isActive ? 'page' : undefined}

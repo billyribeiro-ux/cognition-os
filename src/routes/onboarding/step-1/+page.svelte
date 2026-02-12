@@ -1,6 +1,5 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
-	import { resolve } from '$app/paths';
 	import { onboarding } from '$lib/stores/onboarding.svelte';
 	import { PROFESSION_LABELS, PROFESSION_ICONS } from '$lib/constants/protocol';
 	import type { Profession } from '$lib/types';
@@ -10,7 +9,7 @@
 	function select(profession: Profession) {
 		onboarding.updateField('profession', profession);
 		onboarding.setStep(2);
-		goto(resolve('/onboarding/step-2'));
+		goto('/onboarding/step-2');
 	}
 </script>
 

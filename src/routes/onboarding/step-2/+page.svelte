@@ -1,6 +1,5 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
-	import { resolve } from '$app/paths';
 	import { onboarding } from '$lib/stores/onboarding.svelte';
 	import type { ScheduleType } from '$lib/types';
 
@@ -34,7 +33,7 @@
 	function select(type: ScheduleType) {
 		onboarding.updateField('scheduleType', type);
 		onboarding.setStep(3);
-		goto(resolve('/onboarding/step-3'));
+		goto('/onboarding/step-3');
 	}
 </script>
 

@@ -1,6 +1,5 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
-	import { resolve } from '$app/paths';
 	import { onboarding } from '$lib/stores/onboarding.svelte';
 	import Button from '$lib/components/ui/Button.svelte';
 	import Slider from '$lib/components/ui/Slider.svelte';
@@ -31,7 +30,7 @@
 		onboarding.updateField('coldExposureLevel', coldExposureLevel);
 		onboarding.updateField('caffeineCups', caffeineCups);
 		onboarding.setStep(9);
-		goto(resolve('/onboarding/step-9'));
+		goto('/onboarding/step-9');
 	}
 </script>
 

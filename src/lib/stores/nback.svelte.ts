@@ -1,10 +1,12 @@
 import type { NBackRound, NBackScore } from '$lib/types';
 import { generateRounds, evaluateResponse, calculateAccuracy } from '$lib/utils/nback-engine';
+import { speakLetter, playCorrectTone, playIncorrectTone } from '$lib/utils/audio';
 import {
 	NBACK_DEFAULT_ROUNDS,
 	NBACK_ROUND_INTERVAL_MS,
 	NBACK_LEVEL_UP_THRESHOLD,
 	NBACK_LEVEL_DOWN_THRESHOLD,
+	NBACK_CONSECUTIVE_SESSIONS_FOR_CHANGE,
 	NBACK_MIN_LEVEL,
 	NBACK_MAX_LEVEL
 } from '$lib/constants/nback-config';
@@ -13,24 +15,32 @@ type GamePhase = 'idle' | 'countdown' | 'playing' | 'feedback' | 'results';
 
 const STORAGE_KEY = 'cognition-os-nback';
 
-function loadNLevel(): number {
-	if (typeof localStorage === 'undefined') return 2;
+interface NBackPersisted {
+	nLevel: number;
+	recentAccuracies: number[];
+}
+
+function loadPersisted(): NBackPersisted {
+	if (typeof localStorage === 'undefined') return { nLevel: 2, recentAccuracies: [] };
 	try {
 		const stored = localStorage.getItem(STORAGE_KEY);
 		if (stored) {
-			const data = JSON.parse(stored) as { nLevel: number };
-			return data.nLevel;
+			const data = JSON.parse(stored) as NBackPersisted;
+			return {
+				nLevel: data.nLevel ?? 2,
+				recentAccuracies: data.recentAccuracies ?? []
+			};
 		}
 	} catch {
 		/* ignore */
 	}
-	return 2;
+	return { nLevel: 2, recentAccuracies: [] };
 }
 
-function saveNLevel(nLevel: number): void {
+function savePersisted(data: NBackPersisted): void {
 	if (typeof localStorage === 'undefined') return;
 	try {
-		localStorage.setItem(STORAGE_KEY, JSON.stringify({ nLevel }));
+		localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
 	} catch {
 		/* ignore */
 	}
@@ -38,7 +48,7 @@ function saveNLevel(nLevel: number): void {
 
 class NBackStore {
 	phase = $state<GamePhase>('idle');
-	nLevel = $state(loadNLevel());
+	nLevel = $state(loadPersisted().nLevel);
 	rounds = $state<NBackRound[]>([]);
 	currentRoundIndex = $state(-1);
 	totalRounds = $state(NBACK_DEFAULT_ROUNDS);
@@ -51,6 +61,13 @@ class NBackStore {
 	countdownValue = $state(3);
 	sessionStartTime = $state(0);
 	feedbackType = $state<'correct' | 'incorrect' | null>(null);
+	positionFeedback = $state<'correct' | 'incorrect' | 'miss' | null>(null);
+	audioFeedback = $state<'correct' | 'incorrect' | 'miss' | null>(null);
+	recentAccuracies = $state<number[]>(loadPersisted().recentAccuracies);
+	levelChangeMessage = $state<string | null>(null);
+	roundResponseTimeMs = $state(0);
+
+	private roundStartTime = 0;
 
 	private intervalId: ReturnType<typeof setInterval> | null = null;
 	private countdownId: ReturnType<typeof setInterval> | null = null;
@@ -119,9 +136,19 @@ class NBackStore {
 		this.userPressedPosition = false;
 		this.userPressedAudio = false;
 		this.feedbackType = null;
+		this.positionFeedback = null;
+		this.audioFeedback = null;
+		this.roundStartTime = Date.now();
 
 		if (this.currentRoundIndex >= this.totalRounds) {
 			this.endSession();
+			return;
+		}
+
+		// Speak the current letter
+		const round = this.rounds[this.currentRoundIndex];
+		if (round) {
+			speakLetter(round.letter);
 		}
 	}
 
@@ -132,15 +159,30 @@ class NBackStore {
 		const round = this.rounds[idx];
 		const result = evaluateResponse(round, this.userPressedPosition, this.userPressedAudio);
 
+		this.roundResponseTimeMs = Date.now() - this.roundStartTime;
+
 		if (result.positionCorrect) this.positionCorrect += 1;
 		else this.positionIncorrect += 1;
 
 		if (result.audioCorrect) this.audioCorrect += 1;
 		else this.audioIncorrect += 1;
 
-		// Brief feedback flash
+		// Per-channel feedback
+		if (this.userPressedPosition && round.isPositionMatch) this.positionFeedback = 'correct';
+		else if (this.userPressedPosition && !round.isPositionMatch)
+			this.positionFeedback = 'incorrect';
+		else if (!this.userPressedPosition && round.isPositionMatch) this.positionFeedback = 'miss';
+
+		if (this.userPressedAudio && round.isAudioMatch) this.audioFeedback = 'correct';
+		else if (this.userPressedAudio && !round.isAudioMatch) this.audioFeedback = 'incorrect';
+		else if (!this.userPressedAudio && round.isAudioMatch) this.audioFeedback = 'miss';
+
+		// Overall feedback + audio cue
 		const bothCorrect = result.positionCorrect && result.audioCorrect;
 		this.feedbackType = bothCorrect ? 'correct' : 'incorrect';
+
+		if (bothCorrect) playCorrectTone();
+		else playIncorrectTone();
 	}
 
 	pressPosition() {
@@ -164,15 +206,36 @@ class NBackStore {
 
 		this.phase = 'results';
 
-		// Adaptive level adjustment
+		// Track recent accuracies for 3-consecutive-session logic
 		const { overallAccuracy } = this.accuracy;
-		if (overallAccuracy >= NBACK_LEVEL_UP_THRESHOLD && this.nLevel < NBACK_MAX_LEVEL) {
+		this.recentAccuracies = [...this.recentAccuracies, overallAccuracy].slice(
+			-NBACK_CONSECUTIVE_SESSIONS_FOR_CHANGE
+		);
+
+		// Adaptive level adjustment — requires N consecutive sessions
+		this.levelChangeMessage = null;
+		const recent = this.recentAccuracies;
+		const hasEnoughSessions = recent.length >= NBACK_CONSECUTIVE_SESSIONS_FOR_CHANGE;
+
+		if (
+			hasEnoughSessions &&
+			recent.every((a) => a >= NBACK_LEVEL_UP_THRESHOLD) &&
+			this.nLevel < NBACK_MAX_LEVEL
+		) {
 			this.nLevel += 1;
-			saveNLevel(this.nLevel);
-		} else if (overallAccuracy < NBACK_LEVEL_DOWN_THRESHOLD && this.nLevel > NBACK_MIN_LEVEL) {
+			this.recentAccuracies = [];
+			this.levelChangeMessage = `Level up! Now at ${this.nLevel}-Back`;
+		} else if (
+			hasEnoughSessions &&
+			recent.every((a) => a < NBACK_LEVEL_DOWN_THRESHOLD) &&
+			this.nLevel > NBACK_MIN_LEVEL
+		) {
 			this.nLevel -= 1;
-			saveNLevel(this.nLevel);
+			this.recentAccuracies = [];
+			this.levelChangeMessage = `Stepped back to ${this.nLevel}-Back to build foundation`;
 		}
+
+		savePersisted({ nLevel: this.nLevel, recentAccuracies: this.recentAccuracies });
 	}
 
 	getScore(): NBackScore {

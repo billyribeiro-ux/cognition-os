@@ -3,7 +3,6 @@
 	import { onboarding } from '$lib/stores/onboarding.svelte';
 	import { page } from '$app/state';
 	import { goto } from '$app/navigation';
-	import { resolve } from '$app/paths';
 	import { ArrowLeft } from 'lucide-svelte';
 
 	let { children }: { children: Snippet } = $props();
@@ -15,9 +14,9 @@
 		onboarding.prevStep();
 		const prev = onboarding.state.step;
 		if (prev === 0) {
-			goto(resolve('/onboarding'));
+			goto('/onboarding');
 		} else {
-			goto(resolve(`/onboarding/step-${prev}`));
+			goto(`/onboarding/step-${prev}`);
 		}
 	}
 </script>

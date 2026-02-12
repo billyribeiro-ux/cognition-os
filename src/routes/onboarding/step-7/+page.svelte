@@ -1,6 +1,5 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
-	import { resolve } from '$app/paths';
 	import { onboarding } from '$lib/stores/onboarding.svelte';
 	import { PEAK_HOUR_HINTS } from '$lib/constants/protocol';
 	import Button from '$lib/components/ui/Button.svelte';
@@ -32,7 +31,7 @@
 			selectedIndex !== null ? presets[selectedIndex].ranges : [{ start: '09:00', end: '12:00' }];
 		onboarding.updateField('peakHours', ranges);
 		onboarding.setStep(8);
-		goto(resolve('/onboarding/step-8'));
+		goto('/onboarding/step-8');
 	}
 </script>
 

@@ -1,6 +1,5 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
-	import { resolve } from '$app/paths';
 	import { onboarding } from '$lib/stores/onboarding.svelte';
 	import TimePicker from '$lib/components/ui/TimePicker.svelte';
 	import Slider from '$lib/components/ui/Slider.svelte';
@@ -13,7 +12,7 @@
 		onboarding.updateField('bedTime', bedTime);
 		onboarding.updateField('sleepHours', sleepHours);
 		onboarding.setStep(5);
-		goto(resolve('/onboarding/step-5'));
+		goto('/onboarding/step-5');
 	}
 </script>
 

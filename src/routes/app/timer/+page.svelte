@@ -2,7 +2,6 @@
 	import { onMount } from 'svelte';
 	import { goto } from '$app/navigation';
 	import { page } from '$app/state';
-	import { resolve } from '$app/paths';
 	import { timer, type TimerMode } from '$lib/stores/timer.svelte';
 	import { protocol } from '$lib/stores/protocol.svelte';
 	import { playCompletionChime, vibrate } from '$lib/utils/audio';
@@ -172,7 +171,7 @@
 				pomodoroTotal: timer.pomodoroTotal
 			});
 		} else {
-			goto(resolve('/app'));
+			goto('/app');
 		}
 	}
 
@@ -243,7 +242,7 @@
 					variant="secondary"
 					onclick={() => {
 						showTaskInput = false;
-						goto(resolve('/app'));
+						goto('/app');
 					}}
 				>
 					Cancel
@@ -264,7 +263,7 @@
 				<p class="mb-6 text-sm text-text-secondary">
 					You've completed all {timer.pomodoroTotal} pomodoros.
 				</p>
-				<Button fullWidth onclick={() => goto(resolve('/app'))}>BACK TO DASHBOARD</Button>
+				<Button fullWidth onclick={() => goto('/app')}>BACK TO DASHBOARD</Button>
 			{:else if timer.mode === 'pomodoro'}
 				<p class="mb-3 text-3xl">✓</p>
 				<h2 class="mb-2 text-xl font-bold text-text-primary">
@@ -285,19 +284,19 @@
 				<p class="mb-3 text-3xl">🧊</p>
 				<h2 class="mb-2 text-xl font-bold text-text-primary">You did it.</h2>
 				<p class="mb-6 text-sm text-text-secondary">Norepinephrine +530%. Dopamine +250%.</p>
-				<Button fullWidth onclick={() => goto(resolve('/app'))}>CONTINUE</Button>
+				<Button fullWidth onclick={() => goto('/app')}>CONTINUE</Button>
 			{:else if timer.mode === 'exercise'}
 				<p class="mb-3 text-3xl">🏃</p>
 				<h2 class="mb-2 text-xl font-bold text-text-primary">Great Session!</h2>
 				<p class="mb-6 text-sm text-text-secondary">
 					Your next 60-90 minutes are your cognitive peak.
 				</p>
-				<Button fullWidth onclick={() => goto(resolve('/app'))}>CONTINUE</Button>
+				<Button fullWidth onclick={() => goto('/app')}>CONTINUE</Button>
 			{:else}
 				<p class="mb-3 text-3xl">✓</p>
 				<h2 class="mb-2 text-xl font-bold text-text-primary">Session Complete</h2>
 				<p class="mb-6 text-sm text-text-secondary">Notice how you feel.</p>
-				<Button fullWidth onclick={() => goto(resolve('/app'))}>CONTINUE</Button>
+				<Button fullWidth onclick={() => goto('/app')}>CONTINUE</Button>
 			{/if}
 		</GlassCard>
 	</div>
@@ -349,7 +348,7 @@
 				<Button onclick={handleResume}>RESUME</Button>
 				<Button variant="danger" onclick={handleStop}>STOP</Button>
 			{:else}
-				<Button variant="secondary" onclick={() => goto(resolve('/app'))}>BACK</Button>
+				<Button variant="secondary" onclick={() => goto('/app')}>BACK</Button>
 			{/if}
 		</div>
 

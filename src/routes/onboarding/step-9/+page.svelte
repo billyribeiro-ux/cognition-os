@@ -1,6 +1,5 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
-	import { resolve } from '$app/paths';
 	import { onboarding } from '$lib/stores/onboarding.svelte';
 	import { COMMITMENT_CONFIGS } from '$lib/constants/protocol';
 	import type { CommitmentLevel } from '$lib/types';
@@ -18,7 +17,7 @@
 	function select(level: CommitmentLevel) {
 		onboarding.updateField('commitmentLevel', level);
 		onboarding.setStep(10);
-		goto(resolve('/onboarding/step-10'));
+		goto('/onboarding/step-10');
 	}
 </script>
 

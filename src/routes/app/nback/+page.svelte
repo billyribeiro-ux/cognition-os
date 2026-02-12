@@ -1,7 +1,6 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import { goto } from '$app/navigation';
-	import { resolve } from '$app/paths';
 	import { nback } from '$lib/stores/nback.svelte';
 	import { NBACK_GRID_SIZE } from '$lib/constants/nback-config';
 	import GlassCard from '$lib/components/ui/GlassCard.svelte';
@@ -64,9 +63,7 @@
 				START SESSION
 			</Button>
 
-			<Button variant="ghost" size="sm" onclick={() => goto(resolve('/app'))}>
-				Back to Dashboard
-			</Button>
+			<Button variant="ghost" size="sm" onclick={() => goto('/app')}>Back to Dashboard</Button>
 		</div>
 	{/if}
 
@@ -229,7 +226,7 @@
 			</GlassCard>
 
 			<div class="flex gap-3">
-				<Button variant="secondary" onclick={() => goto(resolve('/app'))}>Dashboard</Button>
+				<Button variant="secondary" onclick={() => goto('/app')}>Dashboard</Button>
 				<Button
 					onclick={() => {
 						nback.reset();

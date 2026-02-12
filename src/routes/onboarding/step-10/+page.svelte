@@ -1,6 +1,5 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
-	import { resolve } from '$app/paths';
 	import { onboarding } from '$lib/stores/onboarding.svelte';
 	import { generateProtocol } from '$lib/utils/protocol-engine';
 	import { formatTime12h } from '$lib/utils/time';
@@ -19,7 +18,7 @@
 
 	function acceptMission() {
 		onboarding.nextStep();
-		goto(resolve('/app'));
+		goto('/app');
 	}
 </script>
 

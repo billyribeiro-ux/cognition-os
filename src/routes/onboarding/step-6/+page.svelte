@@ -1,6 +1,5 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
-	import { resolve } from '$app/paths';
 	import { onboarding } from '$lib/stores/onboarding.svelte';
 	import TimePicker from '$lib/components/ui/TimePicker.svelte';
 	import Slider from '$lib/components/ui/Slider.svelte';
@@ -15,7 +14,7 @@
 		onboarding.updateField('lunchBreakTime', lunchBreakTime);
 		onboarding.updateField('lunchDurationMin', lunchDurationMin);
 		onboarding.setStep(7);
-		goto(resolve('/onboarding/step-7'));
+		goto('/onboarding/step-7');
 	}
 </script>
 

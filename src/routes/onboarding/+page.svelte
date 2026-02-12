@@ -1,12 +1,11 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
-	import { resolve } from '$app/paths';
 	import { onboarding } from '$lib/stores/onboarding.svelte';
 	import Button from '$lib/components/ui/Button.svelte';
 
 	function start() {
 		onboarding.setStep(1);
-		goto(resolve('/onboarding/step-1'));
+		goto('/onboarding/step-1');
 	}
 </script>
 

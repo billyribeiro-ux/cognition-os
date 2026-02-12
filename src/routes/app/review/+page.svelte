@@ -1,7 +1,6 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import { goto } from '$app/navigation';
-	import { resolve } from '$app/paths';
 	import { srs } from '$lib/stores/srs.svelte';
 	import { getNextReviewDates } from '$lib/utils/srs-algorithm';
 	import type { SRSRating } from '$lib/types';
@@ -76,7 +75,7 @@
 			</GlassCard>
 
 			<div class="flex gap-3">
-				<Button variant="secondary" onclick={() => goto(resolve('/app'))}>Dashboard</Button>
+				<Button variant="secondary" onclick={() => goto('/app')}>Dashboard</Button>
 				<Button onclick={() => (showAddCard = true)}>Add Card</Button>
 			</div>
 		</div>
@@ -114,7 +113,7 @@
 			</GlassCard>
 
 			<div class="flex gap-3">
-				<Button variant="secondary" onclick={() => goto(resolve('/app'))}>Dashboard</Button>
+				<Button variant="secondary" onclick={() => goto('/app')}>Dashboard</Button>
 				<Button onclick={() => (showAddCard = true)}>Add Card</Button>
 			</div>
 		</div>
